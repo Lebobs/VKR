@@ -3,18 +3,22 @@ import matplotlib.pyplot as plt
 
 class SimulationVisualizer:
     @staticmethod
-    def visualize_2d_pollution(concentration, u_mesh, v_mesh, river_mask, src_x_m, src_y_m, params, y_domain_max, total_mass, max_c, substance_name, weather_name):
+    @staticmethod
+    def visualize_2d_pollution(concentration, u_mesh, v_mesh, river_mask, src_x_m, src_y_m, params, total_mass, max_c, substance_name, weather_name):
         fig, ax = plt.subplots(figsize=(12, 6))
+        ny, nx = concentration.shape
+        
+        amp_plot = max(0.0, params["sinuosity"] - 0.5) * params["width"] * 1.5
+        y_domain_max = (params["width"] * 1.75 + amp_plot + params["width"] / 2) * 1.1
+        
         vmax_val = max_c * 0.6 if max_c > 1e-4 else 1.0
         ax.imshow(concentration, origin='lower', cmap='YlOrRd', extent=[0, params["length"], 0, y_domain_max], alpha=0.8, vmax=vmax_val)
         
         x_plot = np.linspace(0, params["length"], 400)
-        amp_plot = max(0.0, params["sinuosity"] - 1.0) * params["width"] * 1.5
         center_plot = (params["width"] * 1.75) + amp_plot * np.sin(3.5 * np.pi * x_plot / params["length"])
         ax.plot(x_plot, center_plot + params["width"]/2, color='darkblue', linewidth=1.5, label='Берега')
         ax.plot(x_plot, center_plot - params["width"]/2, color='darkblue', linewidth=1.5)
         
-        ny, nx = concentration.shape
         X, Y = np.meshgrid(np.linspace(0, params["length"], nx), np.linspace(0, y_domain_max, ny))
         
         u_viz = np.where(river_mask, u_mesh, np.nan)

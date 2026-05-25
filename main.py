@@ -47,7 +47,7 @@ class SimulationGUI(tk.Tk):
         self.pattern_entry.insert(0, "Река")
         self.pattern_entry.grid(row=0, column=1, padx=5, pady=4)
         
-        tk.Label(frame, text="Извилистость:").grid(row=1, column=0, sticky="w", padx=5, pady=4)
+        tk.Label(frame, text="Извилистость (Диапазон: 0,5 - 2,0):").grid(row=1, column=0, sticky="w", padx=5, pady=4)
         self.sinuosity_entry = tk.Entry(frame, width=input_width)
         self.sinuosity_entry.insert(0, "1.4")
         self.sinuosity_entry.grid(row=1, column=1, padx=5, pady=4)
@@ -112,6 +112,10 @@ class SimulationGUI(tk.Tk):
             messagebox.showerror("Ошибка", "Введите числовые значения.")
             return
 
+        if not (0.5 <= params["sinuosity"] <= 2.0):
+            messagebox.showerror("Ошибка", "Коэффициент извилистости должен быть в диапазоне от 0.5 до 2.0.")
+            return
+
         substance_info = next((s for s in self.substances_data if s[1] == selected_substance), (None, "Неизвестно", 0.5))
         sub_id = substance_info[0]
         D_coef = max(0.01, float(substance_info[2]))
@@ -126,12 +130,13 @@ class SimulationGUI(tk.Tk):
         params["flow_speed"] *= mod_speed
 
         nx, ny = 120, 120
-        y_domain_max = params["width"] * 3.5
+        amp = max(0.0, params["sinuosity"] - 0.5) * params["width"] * 1.5
+        y_domain_max = (params["width"] * 1.75 + amp + params["width"] / 2) * 1.1
         dx = params["length"] / nx
         dy = y_domain_max / ny
         
         src_x_m = params["length"] * 0.15
-        amp = max(0.0, params["sinuosity"] - 1.0) * params["width"] * 1.5
+        amp = max(0.0, params["sinuosity"] - 0.5) * params["width"] * 1.5
         src_y_m = (params["width"] * 1.75) + amp * np.sin(3.5 * np.pi * src_x_m / params["length"])
         
         src_x = int(np.clip(src_x_m / dx, 0, nx - 1))
@@ -160,7 +165,7 @@ class SimulationGUI(tk.Tk):
         max_concentration = float(concentration.max())
         
         db.save_results(project_id, max_concentration)
-        SimulationVisualizer.visualize_2d_pollution(concentration, U_mesh, V_mesh, river_mask, src_x_m, src_y_m, params, y_domain_max, mass_in_water_kg, max_concentration, selected_substance, selected_weather)
+        SimulationVisualizer.visualize_2d_pollution(concentration, U_mesh, V_mesh, river_mask, src_x_m, src_y_m, params, mass_in_water_kg, max_concentration, selected_substance, selected_weather)
 
 if __name__ == "__main__":
     if db.cursor:
