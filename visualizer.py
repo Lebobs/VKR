@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 class SimulationVisualizer:
     @staticmethod
-    @staticmethod
     def visualize_2d_pollution(concentration, u_mesh, v_mesh, river_mask, src_x_m, src_y_m, params, total_mass, max_c, substance_name, weather_name):
         fig, ax = plt.subplots(figsize=(12, 6))
         ny, nx = concentration.shape
@@ -54,4 +53,7 @@ class SimulationVisualizer:
         ax.set_ylim(0, y_domain_max)
         ax.legend(loc='upper right')
         plt.tight_layout(rect=[0, 0, 0.78, 1])
-        plt.show()
+        plt.savefig("pollution_map.png", dpi=300)
+        plt.close()
+        import os
+        os.startfile("pollution_map.png")

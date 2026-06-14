@@ -154,7 +154,8 @@ class SimulationGUI(tk.Tk):
         max_v = np.max(np.abs(V_mesh)) + 1e-6
         
         cfl_limit = 1.0 / (max_u / dx + max_v / dy + 2.0 * D_coef / (dx**2) + 2.0 * D_coef / (dy**2))
-        dt = cfl_limit * 0.40 
+        dt_diff = 0.25 * min(dx**2, dy**2) / max(D_coef, 1e-6)
+        dt = min(cfl_limit * 0.20, dt_diff) 
         
         project_id = db.save_initial_data(params, src_x_m, src_y_m, dx, dy, dt, cfl_limit, sub_id, mass_rate, w_id)
         

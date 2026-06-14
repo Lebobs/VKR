@@ -20,11 +20,12 @@ class SimulationCore:
             dC[:-1, :] -= v_neg[:-1, :] * (C[1:, :] - C[:-1, :]) / dy
             dC[:, 1:-1] += D_coef * (C[:, 2:] - 2 * C[:, 1:-1] + C[:, :-2]) / (dx**2)
             dC[1:-1, :] += D_coef * (C[2:, :] - 2 * C[1:-1, :] + C[:-2, :]) / (dy**2)
-            C += dC * dt
             
             if washout_coef > 0:
-                C *= (1.0 - washout_coef * dt)
+                dC -= washout_coef * C
                 
+            C += dC * dt
+
             C = np.clip(C, 0.0, 1e6)
             C[~river_mask] = 0
             

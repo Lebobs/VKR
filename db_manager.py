@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 class DBManager:
@@ -5,7 +6,7 @@ class DBManager:
         self.config = {
             "dbname": "VKR",
             "user": "postgres",
-            "password": "",  
+            "password": os.getenv("DB_PASSWORD", ""),  
             "host": "localhost",
             "port": "5432"
         }
@@ -63,7 +64,7 @@ class DBManager:
             pid = self.cursor.fetchone()[0]
             
             self.cursor.execute("""
-                INSERT INTO параметры (project_id, sinuosity, width, length, avg_depth, flow_speed, wind_speed, weather_id) 
+                INSERT INTO параметры (project_id, sinuosity, width, length, avg_depth, flow_speed, wind_speed) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (pid, params["sinuosity"], params["width"], params["length"], params["avg_depth"], params["flow_speed"], params["wind_speed"], w_id))
             
